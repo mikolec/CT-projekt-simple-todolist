@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Todo list</title>
+    <link rel="stylesheet" href="./styles/reset.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap&subset=latin-ext"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>My "ToDo" List</h1>
+        <div class="form">
+          <input
+            type="text"
+            id="todo-input"
+            rel="js-todo-input"
+            placeholder="Type here your next task title..."
+            autofocus
+          />
+          <button class="add input" rel="js-add-todo-btn">Add</button>
+        </div>
+      </header>
+    </div>
+    <div class="container">
+      <main>
+        <ul id="list">
+          <!-- <li>Hit the gym<button>Delete</button><button>Edit</button><button>Done</button></li>
+          <li class="checked">
+            Pay bills<span
+              ><button class="delete">Delete</button><button class="edit">Edit</button
+              ><button class="completed">Completed</button></span
+            >
+          </li>
+          <li>
+            Meet George<span><button>Delete</button><button>Edit</button><button>Done</button></span>
+          </li>
+          <li>
+            Buy eggs<span><button>Delete</button><button>Edit</button><button>Done</button></span>
+          </li>
+          <li class="checked">
+            Read a book<span><button>Delete</button><button>Edit</button><button>Done</button></span>
+          </li>
+          <li>
+            Organize office<span><button>Delete</button><button>Edit</button><button>Done</button></span>
+          </li> -->
+        </ul>
+      </main>
+    </div>
+    <!-- <div class="modal" style="display:block">
+      <span class="close">x</span>
+      <div class="form"></div>
+    </div> -->
+
+    <!-- The Modal -->
+    <div class="modal" rel="js-modal">
+      <!-- Modal content -->
+      <div class="modal-content" rel="js-modal-content">
+        <span class="close" rel="js-modal-close">&times;</span>
+        <input type="text" rel="js-modal-input" />
+        <button rel="js-modal-ok">OK</button>
+        <button rel="js-modal-cancel">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Popup -->
+
+    <script src="app.js"></script>
+  </body>
+</html>
