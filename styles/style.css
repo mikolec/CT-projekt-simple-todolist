@@ -4,7 +4,7 @@
 
 html {
   /* font-family: Roboto, Helvetica, Arial, sans-serif; */
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 h1 {
@@ -54,15 +54,18 @@ ul > li > button:first-of-type {
 }
 
 ul > li:nth-child(even) {
-  background: #ddd;
+  background: rgb(141, 135, 135);
 }
 ul > li.checked {
   background: #888;
   color: #fff;
   text-decoration: line-through;
 }
+li.checked button {
+  text-decoration: none;
+}
 ul > li.checked::before {
-  content: '';
+  content: "";
   position: absolute;
   border-color: #333;
   border-style: solid;
