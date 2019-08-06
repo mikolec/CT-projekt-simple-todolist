@@ -1,114 +1,101 @@
-// globals
-// const todoList = [];
-// const user = "miko";
+var DB = (function() {
+  var _url;
+  var _user;
 
-class DB {
-  // constructor(url, todoList) {
-  constructor(url) {
-    this.url = url;
-    // this.todoList = todoList || [];
-    this.user = "miko";
-    // console.log(this.user);
-  }
-
-  getTodos(callback) {
-    todoList = [];
-    fetch(this.url, { method: "GET" })
-      .then(res => res.json())
-      .then(res => {
-        res
-          .filter(
-            function(todo) {
-              return todo.author === this.user;
-            }.bind(this)
-          )
-          .map(
-            function(todo) {
-              // this.todoList.push({ //jak zrobić, przepisanie??
-              todoList.push({
-                title: todo.title,
-                id: todo.id,
-                description: decodeURIComponent(todo.description),
-                user: todo.author,
-                completed: Boolean(todo.extra),
-                url: decodeURIComponent(todo.url),
-                parent_id: todo.parent_todo_id
-              });
-            }.bind(this)
-          );
-      })
-      .then(() => {
-        if (callback) {
-          callback();
-        }
-      });
-  }
-  //todo: object
-
-  mapTodoToAJAXFormat(todo) {
+  function mapTodoToAJAXFormat(todo) {
     return {
-      id: todo.id,
       title: todo.title,
-      author: todo.author,
-      description: todo.description,
-      author: todo.user || this.user,
+      id: todo.id,
+      description: encodeURIComponent(todo.description),
+      priority: todo.priority,
+      author: todo.user || _user,
       extra: Number(todo.completed),
-      url: todo.url,
+      url: encodeURIComponent(todo.url),
       parent_todo_id: todo.parent_id
     };
   }
-  addNewTodo(todo, callback) {
-    todo = this.mapTodoToAJAXFormat(todo);
-    console.log(todo);
+  function mapTodoFromAJAXFormat(todo) {
+    return {
+      title: todo.title,
+      id: todo.id,
+      description: decodeURIComponent(todo.description),
+      priority: todo.priority,
+      user: todo.author,
+      completed: Boolean(todo.extra),
+      url: decodeURIComponent(todo.url),
+      parent_id: todo.parent_todo_id
+    };
+  }
 
-    fetch(this.url, {
+  function init(url, user = "miko") {
+    _url = url;
+    _user = user;
+  }
+  function readTodos() {
+    return fetch(_url, { method: "GET" })
+      .then(res => res.json())
+      .then(res => {
+        // console.log(res, _user, _url);
+
+        return res
+          .filter(todo => {
+            return todo.author === _user;
+          })
+          .map(todo => mapTodoFromAJAXFormat(todo));
+      });
+  }
+  function createTodo(todo) {
+    todo = mapTodoToAJAXFormat(todo);
+
+    return fetch(_url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(this.mapTodoToAJAXFormat(todo))
+      body: JSON.stringify(todo)
     })
       .then(res => res.json())
       .then(response => {
-        console.log("Success:", JSON.stringify(response));
-        // this.getTodos();
-        if (callback) {
-          callback();
-        }
+        if (response.status == "0") console.log("Success:", JSON.stringify(response));
+        else console.log("Failure:", JSON.stringify(response));
       })
       .catch(error => console.error("Error:", error));
   }
+  function updateTodo(todo) {
+    todo = mapTodoToAJAXFormat(todo);
 
-  updateTodo(id, todo, callback) {
-    fetch(this.url + id, {
+    return fetch(_url + todo.id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(this.mapTodoToAJAXFormat(todo))
+      body: JSON.stringify(todo)
     })
       .then(res => res.json())
       .then(response => {
-        console.log("Success:", JSON.stringify(response));
-
-        if (callback) {
-          callback();
-        }
+        if (response.status == "0") console.log("Success:", JSON.stringify(response));
+        else console.log("Failure:", JSON.stringify(response));
       })
       .catch(error => console.error("Error:", error));
   }
-
-  deleteTodo(id, callback) {
-    fetch(this.url + id, {
+  function deleteTodo(id) {
+    return fetch(_url + id, {
       method: "DELETE"
     })
       .then(res => res.json())
       .then(response => {
-        console.log("Success:", JSON.stringify(response));
-        if (callback) {
-          callback();
-        }
+        if (response.status == "0") console.log("Success:", JSON.stringify(response));
+        else console.log("Failure:", JSON.stringify(response));
       })
       .catch(error => console.error("Error:", error));
   }
-}
+
+  module_api = {
+    init: init,
+    readTodos: readTodos,
+    createTodo: createTodo,
+    updateTodo: updateTodo,
+    deleteTodo: deleteTodo
+  };
+  return module_api;
+})();

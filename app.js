@@ -5,7 +5,8 @@ var $list, $mainInput, $addBtn, $modal, $modalContent, $modalInput, $modalOKBtn,
 var todoList = [];
 
 const url = "http://195.181.210.249:3000/todo/";
-const db = new DB(url, todoList);
+DB.init(url, "miko");
+// const db = new DB(url, todoList);
 
 function main() {
   prepareDOMElements();
@@ -37,23 +38,16 @@ function prepareDOMEvents() {
 
 function prepareTodoList() {
   //wrzucenie poczatkowych elementów do listy
-  // ** do pobrania lista z bazy
-  db.getTodos(renderList);
-}
-
-function addButtonClickHandler() {
-  if ($mainInput.value) {
-    db.addNewTodo({ title: $mainInput.value }, prepareTodoList);
-
-    $mainInput.value = "";
-    $mainInput.focus();
-  }
+  DB.readTodos().then(res => {
+    todoList = res;
+    renderList();
+  });
 }
 
 function renderList() {
   removeAllElementsFromTodoList();
   todoList.forEach(todo => {
-    addNewElementToList(todo);
+    addNewListElement(todo);
   });
 }
 
@@ -63,30 +57,45 @@ function removeAllElementsFromTodoList() {
   }
 }
 
-function addNewElementToList(todo /* Title, author, id */) {
+function addButtonClickHandler() {
+  if ($mainInput.value) {
+    DB.createTodo({ title: $mainInput.value }).then(() => prepareTodoList());
+
+    $mainInput.value = "";
+    $mainInput.focus();
+  }
+}
+
+function addNewListElement(todo /* Title, author, id */) {
   //obsługa dodawanie elementów do listy
-  const newElement = createElement(todo);
+  const newElement = createListElement(todo);
   $list.appendChild(newElement);
 }
 
-function createBtn(innerText, className) {
+function createBtn(innerText, className, disabled) {
   var btn = document.createElement("BUTTON");
   btn.innerText = innerText;
   btn.className = className;
+  if (disabled) btn.disabled = true;
   return btn;
 }
 
-function createElement(todo) {
+function createListElement(todo) {
+  const span = document.createElement("SPAN");
+  span.innerText = todo.title;
   const newElement = document.createElement("LI");
-  newElement.innerText = todo.title;
+  newElement.appendChild(span);
   newElement.id = "todo-" + todo.id;
+  newElement.appendChild(createBtn("Delete", "delete"));
   if (todo.completed) {
     newElement.classList.add("checked");
+    newElement.appendChild(createBtn("Edit", "edit", true));
+    newElement.appendChild(createBtn("Mark completed", "completed", true));
+  } else {
+    newElement.appendChild(createBtn("Edit", "edit", false));
+    newElement.appendChild(createBtn("Mark completed", "completed", false));
   }
 
-  newElement.appendChild(createBtn("Delete", "delete"));
-  newElement.appendChild(createBtn("Edit", "edit"));
-  newElement.appendChild(createBtn("Mark completed", "completed"));
   return newElement;
 }
 
@@ -107,7 +116,7 @@ function getTodoIdFromParentElement(todoId) {
 
 function removeListElement(id) {
   //**usuwanie elementu z bazy */
-  db.deleteTodo(id, prepareTodoList);
+  DB.deleteTodo(id).then(() => prepareTodoList());
 }
 
 function findTodo(id) {
@@ -127,7 +136,7 @@ function addDataToPopup(title, id /* Title, author, id */) {
 
 function acceptChangeHandler() {
   var id = $modalContent.getAttribute("data-todo-id");
-  db.updateTodo(id, { title: $modalInput.value }, prepareTodoList);
+  DB.updateTodo({ id: id, title: $modalInput.value }).then(() => prepareTodoList());
   closePopup();
 }
 
@@ -148,7 +157,9 @@ function declineChanges() {
 
 function markElementAsDone(id /* id */) {
   //zaznacz element jako wykonany (podmień klasę CSS)
-  db.updateTodo(id, { completed: true }, prepareTodoList);
+  DB.updateTodo({ id: id, completed: true }).then(() => {
+    prepareTodoList();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", main);
@@ -157,6 +168,7 @@ document.addEventListener("DOMContentLoaded", main);
 //   title: "test_04",
 //   author: "miko",
 //   description: encodeURI("AAAA opis zawierający polskie znaki ŁÓDŹ"),
+//    priority: 1,
 //   completed: true,
 //   url: encodeURI("https://www.youtube.com/watch?v=1NRnMNcl1uE"),
 //   parent_id: 11

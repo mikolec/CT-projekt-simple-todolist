@@ -56,13 +56,16 @@ ul > li > button:first-of-type {
 ul > li:nth-child(even) {
   background: rgb(141, 135, 135);
 }
-ul > li.checked {
+.checked {
   background: #888;
   color: #fff;
+}
+.checked > span {
   text-decoration: line-through;
 }
-li.checked button {
-  text-decoration: none;
+.checked button.completed,
+.checked button.edit {
+  text-decoration: line-through;
 }
 ul > li.checked::before {
   content: "";
