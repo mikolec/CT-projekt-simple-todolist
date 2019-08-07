@@ -86,15 +86,13 @@ function createListElement(todo) {
   const newElement = document.createElement("LI");
   newElement.appendChild(span);
   newElement.id = "todo-" + todo.id;
+
   newElement.appendChild(createBtn("Delete", "delete"));
   if (todo.completed) {
     newElement.classList.add("checked");
-    newElement.appendChild(createBtn("Edit", "edit", true));
-    newElement.appendChild(createBtn("Mark completed", "completed", true));
-  } else {
-    newElement.appendChild(createBtn("Edit", "edit", false));
-    newElement.appendChild(createBtn("Mark completed", "completed", false));
   }
+  newElement.appendChild(createBtn("Edit", "edit", todo.completed));
+  newElement.appendChild(createBtn("Mark completed", "completed", todo.completed));
 
   return newElement;
 }
